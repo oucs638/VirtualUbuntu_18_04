@@ -237,7 +237,11 @@ int main(int argc, char* argv[]) {
           }
         }
       }
-    } else if (ascty == 2) {
+    } 
+    
+
+    
+  } else if (ascty == 2) {
       blkNm = 1;
       oftNm = (int)log2((double)blkSz);
       idxNm = (int)log2((double)blkNm);
@@ -409,11 +413,9 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-
-    frd.close();
-    fwt.close();
-    return 0;
-  }
+  frd.close();
+  fwt.close();
+  return 0;
 }
 
 bst hexToBinary(string str) {
