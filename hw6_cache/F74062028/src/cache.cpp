@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <bitset>
 #include <sstream>
 #include <math.h>
 
