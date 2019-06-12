@@ -2,15 +2,15 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <bitset>
 #include <sstream>
+#include <bitset>
 #include <math.h>
 
 using namespace std;
-// typedef bitset<32> bit32;
+typedef bitset<32> bit32;
 
-bitset<32> hextobinary(string num);
-int bit32tagtoint(bitset<32> num, int bitnum, int start);
+bit32 hextobinary(string num);
+int bit32tagtoint(bit32 num, int bitnum, int start);
 
 int main(int argc, char *argv[])
 {
@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
 
     int cacheSize, blockSize, associativity, replacement;
     int blockNum, offsetNum, indexNum, tagNum, tmpint;
-    vector<bitset<32> > addrs;
+    vector<bit32> addrs;
     string addr;
-    bitset<32> tmp;
+    bit32 tmp;
 
     rdfile >> cacheSize;
     rdfile >> blockSize;
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         indexNum = (int)log2((double)blockNum);
         tagNum = 32 - offsetNum - indexNum;
         int tags[blockNum][1];
-        bitset<32> data[blockNum][1];
+        bit32 data[blockNum][1];
         bool chck[blockNum][1];
         for (int i = 0; i < blockNum; i++)
             chck[i][0] = false;
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         indexNum = (int)log2((double)blockNum);
         tagNum = 32 - offsetNum - indexNum;
         int tag[blockNum][4];
-        bitset<32> data[blockNum][4];
+        bit32 data[blockNum][4];
         bool check[blockNum][4];
         for (int i = 0; i < blockNum; i++)
             for (int j = 0; j < 4; j++)
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
         tagNum = 32 - offsetNum - indexNum;
         int longBlockNum = (cacheSize * 1024) / blockSize;
         int tags[blockNum][longBlockNum];
-        bitset<32> data[blockNum][longBlockNum];
+        bit32 data[blockNum][longBlockNum];
         bool chck[blockNum][longBlockNum];
         // cout << blockNum << endl;
         // cout << longBlockNum << endl;
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
                     else
                     {
                         wtfile << -1 << endl;
-                        bitset<32> tmpdata = data[0][tmpindex];
+                        bit32 tmpdata = data[0][tmpindex];
                         for (int i = tmpindex; i < longBlockNum; i++)
                         {
                             tags[0][i] = tags[0][i + 1];
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
                     else
                     {
                         wtfile << -1 << endl;
-                        bitset<32> tmpdata = data[0][tmptmpIndex];
+                        bit32 tmpdata = data[0][tmptmpIndex];
                         for (int i = tmptmpIndex; i < tmpindex; i++)
                         {
                             tags[0][i] = tags[0][i + 1];
@@ -308,17 +308,17 @@ int main(int argc, char *argv[])
     wtfile.close();
 }
 
-bitset<32> hextobinary(string num)
+bit32 hextobinary(string num)
 {
     stringstream tmp;
     tmp << hex << num;
     unsigned n;
     tmp >> n;
-    bitset<32> b(n);
+    bit32 b(n);
     return b;
 }
 
-int bit32tagtoint(bitset<32> num, int bitnum, int start)
+int bit32tagtoint(bit32 num, int bitnum, int start)
 {
     int result = 0;
     for (int i = 0; i < bitnum; i++)
