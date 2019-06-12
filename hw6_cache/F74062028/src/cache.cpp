@@ -5,9 +5,15 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 using namespace std;
+
 typedef bitset<32> bst;
+typedef struct {
+  vector<int> vec;
+} int4;
+typedef struct {
+  vector<bool> vec;
+} bool4;
 
 bst hexToBinary(string str);
 int bstTagToInt(bst tag, int rng, int bgn);
@@ -58,134 +64,356 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    // if (rlcmt == 0) {
-
-    // } else if (rlcmt == 1) {
-
-    // } else if (rlcmt == 2) {
-
-    // }
   } else if (ascty == 1) {
-    if (rlcmt == 0) {
-    } else if (rlcmt == 1) {
-    } else if (rlcmt == 2) {
-    }
-  } else if (ascty == 2) {
-    blkNm = 1;
+    blkNm = ((cchSz * 1024) / blkSz) / 4;
     oftNm = (int)log2((double)blkSz);
     idxNm = (int)log2((double)blkNm);
     tagNm = 32 - oftNm - idxNm;
-    int lbkNm = (cchSz * 1024) / blkSz;
     int tpidx = -1;
-    vector<int> tag;
-    vector<bool> chk;
-    tag.resize(lbkNm);
-    for (int i = 0; i < lbkNm; i++) chk.push_back(false);
+    vector<int4> tag;
+    vector<bool4> chk;
+    tag.resize(blkNm);
+    chk.resize(blkNm);
+    for (int i = 0; i < blkNm; i++) {
+      tag[i].vec.resize(4);
+      for (int j = 0; j < 4; j++) chk[i].vec.push_back(false);
+    }
     if (rlcmt == 0) {
-      tpidx = -1;
       while (frd >> hex >> tmpwd) {
         tmpbt = hexToBinary(tmpwd);
         tmptg = bstTagToInt(tmpbt, tagNm, 31);
-        // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
-        for (int i = 0; i < lbkNm; i++) {
-          if (!chk[i])
+        tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+        tpidx = -1;
+        for (int i = 0; i < 4; i++) {
+          if (!chk[tmpit].vec[i])
             break;
           else
             tpidx = i;
         }
         if (tpidx == -1) {
-          tag[0] = tmptg;
-          chk[0] = true;
+          tag[tmpit].vec[0] = tmptg;
+          chk[tmpit].vec[0] = true;
           fwt << -1 << endl;
-        } else if (tpidx == 127) {
+        } else if (tpidx == 3) {
           tpidx = -1;
-          for (int i = 0; i < lbkNm; i++)
-            if (tag[i] == tmptg) {
+          for (int i = 0; i < 4; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
               tpidx = i;
               break;
             }
           if (tpidx != -1)
             fwt << -1 << endl;
           else {
-            fwt << tag[0] << endl;
-            tag.erase(tag.begin());
-            tag.push_back(tmptg);
+            fwt << tag[tmpit].vec[0] << endl;
+            tag[tmpit].vec.erase(tag[tmpit].vec.begin());
+            tag[tmpit].vec.push_back(tmptg);
           }
         } else {
           int tptpidx = -1;
-          tmptg = bstTagToInt(tmpbt, tagNm, 31);
-          for (int i = 0; i < tpidx; i++)
-            if (tag[i] == tmptg) {
+          // tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          for (int i = 0; i <= tpidx; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
               tptpidx = i;
               break;
             }
-          if (tpidx != -1)
+          if (tptpidx != -1)
             fwt << -1 << endl;
           else {
             fwt << -1 << endl;
-            tag[tptpidx + 1] = tmptg;
-            chk[tptpidx + 1] = true;
+            tag[tmpit].vec[tptpidx + 1] = tmptg;
+            chk[tmpit].vec[tptpidx + 1] = true;
           }
         }
       }
     } else if (rlcmt == 1) {
-      tpidx = -1;
       while (frd >> hex >> tmpwd) {
         tmpbt = hexToBinary(tmpwd);
         tmptg = bstTagToInt(tmpbt, tagNm, 31);
-        // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
-        for (int i = 0; i < lbkNm; i++) {
-          if (!chk[i])
+        tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+        tpidx = -1;
+        for (int i = 0; i < 4; i++) {
+          if (!chk[tmpit].vec[i])
             break;
           else
             tpidx = i;
         }
         if (tpidx == -1) {
-          tag[0] = tmptg;
-          chk[0] = true;
+          tag[tmpit].vec[0] = tmptg;
+          chk[tmpit].vec[0] = true;
           fwt << -1 << endl;
-        } else if (tpidx == 127) {
+        } else if (tpidx == 3) {
           tpidx = -1;
-          for (int i = 0; i < lbkNm; i++)
-            if (tag[i] == tmptg) {
+          for (int i = 0; i < 4; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
               tpidx = i;
               break;
             }
           if (tpidx != -1) {
             fwt << -1 << endl;
-            tag.erase(tag.begin() + (tpidx - 1));
-            tag.push_back(tmptg);
+            tag[tmpit].vec.erase(tag[tmpit].vec.begin() + (tpidx - 1));
+            tag[tmpit].vec.push_back(tmptg);
           } else {
-            fwt << tag[0] << endl;
-            tag.erase(tag.begin());
-            tag.push_back(tmptg);
+            fwt << tag[tmpit].vec[0] << endl;
+            tag[tmpit].vec.erase(tag[tmpit].vec.begin());
+            tag[tmpit].vec.push_back(tmptg);
           }
         } else {
           int tptpidx = -1;
-          tmptg = bstTagToInt(tmpbt, tagNm, 31);
-          for (int i = 0; i < tpidx; i++)
-            if (tag[i] == tmptg) {
+          // tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          for (int i = 0; i <= tpidx; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
               tptpidx = i;
               break;
             }
           if (tptpidx != -1) {
             fwt << -1 << endl;
-            tag.erase(tag.begin() + (tptpidx - 1));
-            tag.push_back(tmptg);
+            tag[tmpit].vec.erase(tag[tmpit].vec.begin() + (tptpidx - 1));
+            tag[tmpit].vec.push_back(tmptg);
           } else {
             fwt << -1 << endl;
-            tag[tptpidx + 1] = tmptg;
-            chk[tptpidx + 1] = true;
+            tag[tmpit].vec[tptpidx + 1] = tmptg;
+            chk[tmpit].vec[tptpidx + 1] = true;
           }
         }
       }
     } else if (rlcmt == 2) {
+      while (frd >> hex >> tmpwd) {
+        tmpbt = hexToBinary(tmpwd);
+        tmptg = bstTagToInt(tmpbt, tagNm, 31);
+        tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+        tpidx = -1;
+        for (int i = 0; i < 4; i++) {
+          if (!chk[tmpit].vec[i])
+            break;
+          else
+            tpidx = i;
+        }
+        if (tpidx == -1) {
+          tag[tmpit].vec[0] = tmptg;
+          chk[tmpit].vec[0] = true;
+          fwt << -1 << endl;
+        } else if (tpidx == 3) {
+          tpidx = -1;
+          for (int i = 0; i < 4; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
+              tpidx = i;
+              break;
+            }
+          if (tpidx != -1) {
+            fwt << -1 << endl;
+            if (tpidx != 3) {
+              int tmp = tag[tmpit].vec[tpidx];
+              tag[tmpit].vec[tpidx] = tag[tmpit].vec[tpidx + 1];
+              tag[tmpit].vec[tpidx + 1] = tmp;
+            }
+            // tag[tmpit].vec.erase(tag[tmpit].vec.begin() + (tpidx - 1));
+            // tag[tmpit].vec.push_back(tmptg);
+          } else {
+            fwt << tag[tmpit].vec[0] << endl;
+            tag[tmpit].vec.erase(tag[tmpit].vec.begin());
+            tag[tmpit].vec.push_back(tmptg);
+          }
+        } else {
+          int tptpidx = -1;
+          // tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          for (int i = 0; i <= tpidx; i++)
+            if (tag[tmpit].vec[i] == tmptg) {
+              tptpidx = i;
+              break;
+            }
+          if (tptpidx != -1) {
+            fwt << -1 << endl;
+            if (tptpidx != tpidx) {
+              int tmp = tag[tmpit].vec[tptpidx];
+              tag[tmpit].vec[tptpidx] = tag[tmpit].vec[tptpidx + 1];
+              tag[tmpit].vec[tptpidx + 1] = tmp;
+            }
+            // tag[tmpit].vec.erase(tag[tmpit].vec.begin() + (tptpidx - 1));
+            // tag[tmpit].vec.push_back(tmptg);
+          } else {
+            fwt << -1 << endl;
+            tag[tmpit].vec[tpidx + 1] = tmptg;
+            chk[tmpit].vec[tpidx + 1] = true;
+          }
+        }
+      }
+    } else if (ascty == 2) {
+      blkNm = 1;
+      oftNm = (int)log2((double)blkSz);
+      idxNm = (int)log2((double)blkNm);
+      tagNm = 32 - oftNm - idxNm;
+      int lbkNm = (cchSz * 1024) / blkSz;
+      int tpidx = -1;
+      vector<int> tag;
+      vector<bool> chk;
+      tag.resize(lbkNm);
+      for (int i = 0; i < lbkNm; i++) chk.push_back(false);
+      if (rlcmt == 0) {
+        tpidx = -1;
+        while (frd >> hex >> tmpwd) {
+          tmpbt = hexToBinary(tmpwd);
+          tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+          for (int i = 0; i < lbkNm; i++) {
+            if (!chk[i])
+              break;
+            else
+              tpidx = i;
+          }
+          if (tpidx == -1) {
+            tag[0] = tmptg;
+            chk[0] = true;
+            fwt << -1 << endl;
+          } else if (tpidx == (lbkNm - 1)) {
+            tpidx = -1;
+            for (int i = 0; i < lbkNm; i++)
+              if (tag[i] == tmptg) {
+                tpidx = i;
+                break;
+              }
+            if (tpidx != -1)
+              fwt << -1 << endl;
+            else {
+              fwt << tag[0] << endl;
+              tag.erase(tag.begin());
+              tag.push_back(tmptg);
+            }
+          } else {
+            int tptpidx = -1;
+            tmptg = bstTagToInt(tmpbt, tagNm, 31);
+            for (int i = 0; i < tpidx; i++)
+              if (tag[i] == tmptg) {
+                tptpidx = i;
+                break;
+              }
+            if (tpidx != -1)
+              fwt << -1 << endl;
+            else {
+              fwt << -1 << endl;
+              tag[tptpidx + 1] = tmptg;
+              chk[tptpidx + 1] = true;
+            }
+          }
+        }
+      } else if (rlcmt == 1) {
+        tpidx = -1;
+        while (frd >> hex >> tmpwd) {
+          tmpbt = hexToBinary(tmpwd);
+          tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+          for (int i = 0; i < lbkNm; i++) {
+            if (!chk[i])
+              break;
+            else
+              tpidx = i;
+          }
+          if (tpidx == -1) {
+            tag[0] = tmptg;
+            chk[0] = true;
+            fwt << -1 << endl;
+          } else if (tpidx == (lbkNm - 1)) {
+            tpidx = -1;
+            for (int i = 0; i < lbkNm; i++)
+              if (tag[i] == tmptg) {
+                tpidx = i;
+                break;
+              }
+            if (tpidx != -1) {
+              fwt << -1 << endl;
+              tag.erase(tag.begin() + (tpidx - 1));
+              tag.push_back(tmptg);
+            } else {
+              fwt << tag[0] << endl;
+              tag.erase(tag.begin());
+              tag.push_back(tmptg);
+            }
+          } else {
+            int tptpidx = -1;
+            // tmptg = bstTagToInt(tmpbt, tagNm, 31);
+            for (int i = 0; i <= tpidx; i++)
+              if (tag[i] == tmptg) {
+                tptpidx = i;
+                break;
+              }
+            if (tptpidx != -1) {
+              fwt << -1 << endl;
+              tag.erase(tag.begin() + (tptpidx - 1));
+              tag.push_back(tmptg);
+            } else {
+              fwt << -1 << endl;
+              tag[tpidx + 1] = tmptg;
+              chk[tpidx + 1] = true;
+            }
+          }
+        }
+      } else if (rlcmt == 2) {
+        tpidx = -1;
+        while (frd >> hex >> tmpwd) {
+          tmpbt = hexToBinary(tmpwd);
+          tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+          for (int i = 0; i < lbkNm; i++) {
+            if (!chk[i])
+              break;
+            else
+              tpidx = i;
+          }
+          if (tpidx == -1) {
+            tag[0] = tmptg;
+            chk[0] = true;
+            fwt << -1 << endl;
+          } else if (tpidx == (lbkNm - 1)) {
+            tpidx = -1;
+            for (int i = 0; i < lbkNm; i++)
+              if (tag[i] == tmptg) {
+                tpidx = i;
+                break;
+              }
+            if (tpidx != -1) {
+              fwt << -1 << endl;
+              if (tpidx != (lbkNm - 1)) {
+                int tmp = tag[tpidx];
+                tag[tpidx] = tag[tpidx + 1];
+                tag[tpidx + 1] = tmp;
+              }
+              // tag.erase(tag.begin() + (tpidx - 1));
+              // tag.push_back(tmptg);
+            } else {
+              fwt << tag[0] << endl;
+              tag.erase(tag.begin());
+              tag.push_back(tmptg);
+            }
+          } else {
+            int tptpidx = -1;
+            // tmptg = bstTagToInt(tmpbt, tagNm, 31);
+            for (int i = 0; i <= tpidx; i++)
+              if (tag[i] == tmptg) {
+                tptpidx = i;
+                break;
+              }
+            if (tptpidx != -1) {
+              fwt << -1 << endl;
+              if (tptpidx != tpidx) {
+                int tmp = tag[tptpidx];
+                tag[tptpidx] = tag[tptpidx + 1];
+                tag[tptpidx + 1] = tmp;
+              }
+              // tag.erase(tag.begin() + (tptpidx - 1));
+              // tag.push_back(tmptg);
+            } else {
+              fwt << -1 << endl;
+              tag[tpidx + 1] = tmptg;
+              chk[tpidx + 1] = true;
+            }
+          }
+        }
+      }
     }
-  }
 
-  frd.close();
-  fwt.close();
-  return 0;
+    frd.close();
+    fwt.close();
+    return 0;
+  }
 }
 
 bst hexToBinary(string str) {
