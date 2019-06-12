@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-bst hexTobinary(string str) {
+bst hexToBinary(string str) {
   stringstream tmp;
   unsigned num;
   tmp << hex << str;
