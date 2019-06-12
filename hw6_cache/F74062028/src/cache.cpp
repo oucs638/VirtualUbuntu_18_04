@@ -1,327 +1,205 @@
-#include <iostream>
+#include <math.h>
+#include <bitset>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <bitset>
-#include <math.h>
 
 using namespace std;
-typedef bitset<32> bit32;
+typedef bitset<32> bst;
 
-bit32 hextobinary(string num);
-int bit32tagtoint(bit32 num, int bitnum, int start);
+bst hexToBinary(string str);
+int bstTagToInt(bst tag, int rng, int bgn);
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
+  fstream frd, fwt;
+  frd.open(argv[1], ios::in);
+  fwt.open(argv[2], ios::out | ios::trunc);
 
-    fstream rdfile, wtfile;
-    rdfile.open(argv[1], ios::in);
-    wtfile.open(argv[2], ios::out | ios::trunc);
-    if (!rdfile)
-    {
-        cout << "ERROR: CANNOT FIND THE FILE" << endl;
-        return 1;
+  if (!frd) {
+    cout << "ERROR: CANNOT FIND THE FILE" << endl;
+    return 1;
+  }
+
+  int cchSz, blkSz, ascty, rlcmt;
+  int blkNm, oftNm, idxNm, tagNm, tmpit, tmptg;
+  string tmpwd;
+  bst tmpbt;
+
+  frd >> cchSz;
+  frd >> blkSz;
+  frd >> ascty;
+  frd >> rlcmt;
+
+  if (ascty == 0) {
+    blkNm = (cchSz * 1024) / blkSz;
+    oftNm = (int)log2((double)blkSz);
+    idxNm = (int)log2((double)blkNm);
+    tagNm = 32 - oftNm - idxNm;
+    vector<int> tag;
+    vector<bool> chk;
+    tag.resize(blkNm);
+    for (int i = 0; i < blkNm; i++) chk.push_back(false);
+    while (frd >> hex >> tmpwd) {
+      tmpbt = hexToBinary(tmpwd);
+      tmptg = bstTagToInt(tmpbt, tagNm, 31);
+      tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+      if (!chk[tmpit]) {
+        tag[tmpit] = tmptg;
+        chk[tmpit] = true;
+        fwt << -1 << endl;
+      } else {
+        if (tag[tmpit] == tmptg)
+          fwt << -1 << endl;
+        else {
+          fwt << tag[tmpit] << endl;
+          tag[tmpit] = tmptg;
+        }
+      }
     }
+    // if (rlcmt == 0) {
 
-    int cacheSize, blockSize, associativity, replacement;
-    int blockNum, offsetNum, indexNum, tagNum, tmpint;
-    vector<bit32> addrs;
-    string addr;
-    bit32 tmp;
+    // } else if (rlcmt == 1) {
 
-    rdfile >> cacheSize;
-    rdfile >> blockSize;
-    rdfile >> associativity;
-    rdfile >> replacement;
+    // } else if (rlcmt == 2) {
 
-    if (associativity == 0)
-    {
-        blockNum = (cacheSize * 1024) / blockSize;
-        // cout << blockNum << endl;
-        offsetNum = (int)log2((double)blockSize);
-        indexNum = (int)log2((double)blockNum);
-        tagNum = 32 - offsetNum - indexNum;
-        int tags[blockNum][1];
-        bit32 data[blockNum][1];
-        bool chck[blockNum][1];
-        for (int i = 0; i < blockNum; i++)
-            chck[i][0] = false;
-        if (replacement == 0)
-        {
-            while (rdfile >> hex >> addr)
-            {
-                tmp = hextobinary(addr);
-                tmpint = bit32tagtoint(tmp, indexNum, 31 - tagNum);
-                // cout << tmpint << endl;
-                if (!chck[tmpint][0])
-                {
-                    tags[tmpint][0] = bit32tagtoint(tmp, tagNum, 31);
-                    data[tmpint][0] = tmp;
-                    chck[tmpint][0] = true;
-                    wtfile << -1 << endl;
-                }
-                else
-                {
-                    if (tags[tmpint][0] == bit32tagtoint(tmp, tagNum, 31))
-                        wtfile << -1 << endl;
-                    else
-                    {
-                        wtfile << tags[tmpint][0] << endl;
-                        tags[tmpint][0] = bit32tagtoint(tmp, tagNum, 31);
-                        data[tmpint][0] = tmp;
-                    }
-                }
-            }
-        }
-        else if (replacement == 1)
-        {
-            while (rdfile >> hex >> addr)
-            {
-                tmp = hextobinary(addr);
-                tmpint = bit32tagtoint(tmp, indexNum, 31 - tagNum);
-                cout << tmpint << endl;
-                if (!chck[tmpint][0])
-                {
-                    tags[tmpint][0] = bit32tagtoint(tmp, tagNum, 31);
-                    data[tmpint][0] = tmp;
-                    chck[tmpint][0] = true;
-                    wtfile << -1 << endl;
-                }
-                else
-                {
-                    if (tags[tmpint][0] == bit32tagtoint(tmp, tagNum, 31))
-                        wtfile << -1 << endl;
-                    else
-                    {
-                        wtfile << tags[tmpint][0] << endl;
-                        tags[tmpint][0] = bit32tagtoint(tmp, tagNum, 31);
-                        data[tmpint][0] = tmp;
-                    }
-                }
-            }
-        }
-        else if (replacement == 2)
-        {
-        }
+    // }
+  } else if (ascty == 1) {
+    if (rlcmt == 0) {
+    } else if (rlcmt == 1) {
+    } else if (rlcmt == 2) {
     }
-    else if (associativity == 1)
-    {
-        blockNum = ((cacheSize * 1024) / blockSize) / 4;
-        offsetNum = (int)log2((double)blockSize);
-        indexNum = (int)log2((double)blockNum);
-        tagNum = 32 - offsetNum - indexNum;
-        int tag[blockNum][4];
-        bit32 data[blockNum][4];
-        bool check[blockNum][4];
-        for (int i = 0; i < blockNum; i++)
-            for (int j = 0; j < 4; j++)
-                check[i][j] = false;
-        if (replacement == 0)
-        {
+  } else if (ascty == 2) {
+    blkNm = 1;
+    oftNm = (int)log2((double)blkSz);
+    idxNm = (int)log2((double)blkNm);
+    tagNm = 32 - oftNm - idxNm;
+    int lbkNm = (cchSz * 1024) / blkSz;
+    int tpidx = -1;
+    vector<int> tag;
+    vector<bool> chk;
+    tag.resize(lbkNm);
+    for (int i = 0; i < lbkNm; i++) chk.push_back(false);
+    if (rlcmt == 0) {
+      tpidx = -1;
+      while (frd >> hex >> tmpwd) {
+        tmpbt = hexToBinary(tmpwd);
+        tmptg = bstTagToInt(tmpbt, tagNm, 31);
+        // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+        for (int i = 0; i < lbkNm; i++) {
+          if (!chk[i])
+            break;
+          else
+            tpidx = i;
         }
-        else if (replacement == 1)
-        {
-        }
-        else if (replacement == 2)
-        {
-        }
-    }
-    else if (associativity == 2)
-    {
-        blockNum = 1;
-        offsetNum = (int)log2((double)blockSize);
-        indexNum = (int)log2((double)blockNum);
-        tagNum = 32 - offsetNum - indexNum;
-        int longBlockNum = (cacheSize * 1024) / blockSize;
-        int tags[blockNum][longBlockNum];
-        bit32 data[blockNum][longBlockNum];
-        bool chck[blockNum][longBlockNum];
-        // cout << blockNum << endl;
-        // cout << longBlockNum << endl;
-        for (int i = 0; i < longBlockNum; i++)
-            chck[0][i] = false;
-        int tmpindex = -1;
-        if (replacement == 0)
-        {
-            tmpindex = -1;
-            while (rdfile >> hex >> addr)
-            {
-                tmp = hextobinary(addr);
-                for (int i = 0; i < longBlockNum; i++)
-                {
-                    if (!chck[0][i])
-                        break;
-                    else
-                        tmpindex = i;
-                }
-                if (tmpindex == -1)
-                {
-                    tags[0][0] = bit32tagtoint(tmp, tagNum, 31);
-                    data[0][0] = tmp;
-                    chck[0][0] = true;
-                    wtfile << -1 << endl;
-                }
-                else if (tmpindex == 127)
-                {
-                    tmpindex = -1;
-                    int tmptag = bit32tagtoint(tmp, tagNum, 31);
-                    for (int i = 0; i < longBlockNum; i++)
-                        if (tags[0][i] == tmptag)
-                        {
-                            tmpindex = i;
-                            break;
-                        }
-                    if (tmpindex == -1)
-                    {
-                        wtfile << tags[0][0] << endl;
-                        for (int i = 0; i < (longBlockNum - 1); i++)
-                        {
-                            tags[0][i] = tags[0][i + 1];
-                            data[0][i] = data[0][i + 1];
-                        }
-                        tags[0][longBlockNum - 1] = tmptag;
-                        data[0][longBlockNum - 1] = tmp;
-                    }
-                    else
-                    {
-                        wtfile << -1 << endl;
-                    }
-                }
-                else
-                {
-                    int tmptmpIndex = -1;
-                    int tmptag = bit32tagtoint(tmp, tagNum, 31);
-                    for (int i = 0; i <= tmpindex; i++)
-                        if (tags[0][i] == tmptag)
-                        {
-                            tmptmpIndex = i;
-                            break;
-                        }
-                    if (tmptmpIndex == -1)
-                    {
-                        tags[0][tmpindex + 1] = bit32tagtoint(tmp, tagNum, 31);
-                        data[0][tmpindex + 1] = tmp;
-                        chck[0][tmpindex + 1] = true;
-                        wtfile << -1 << endl;
-                    }
-                    else
-                    {
-                        wtfile << -1 << endl;
-                    }
-                }
-                // tmpint = bit32tagtoint(tmp, indexNum, 31 - tagNum);
+        if (tpidx == -1) {
+          tag[0] = tmptg;
+          chk[0] = true;
+          fwt << -1 << endl;
+        } else if (tpidx == 127) {
+          tpidx = -1;
+          for (int i = 0; i < lbkNm; i++)
+            if (tag[i] == tmptg) {
+              tpidx = i;
+              break;
             }
-        }
-        else if (replacement == 1)
-        {
-            while (rdfile >> hex >> addr)
-            {
-                tmp = hextobinary(addr);
-                for (int i = 0; i < longBlockNum; i++)
-                {
-                    if (!chck[0][i])
-                        break;
-                    else
-                        tmpindex = i;
-                }
-                if (tmpindex == -1)
-                {
-                    tags[0][0] = bit32tagtoint(tmp, tagNum, 31);
-                    data[0][0] = tmp;
-                    chck[0][0] = true;
-                    wtfile << -1 << endl;
-                }
-                else if (tmpindex == 127)
-                {
-                    tmpindex = -1;
-                    int tmptag = bit32tagtoint(tmp, tagNum, 31);
-                    for (int i = 0; i < longBlockNum; i++)
-                        if (tags[0][i] == tmptag)
-                        {
-                            tmpindex = i;
-                            break;
-                        }
-                    if (tmpindex == -1)
-                    {
-                        wtfile << tags[0][0] << endl;
-                        for (int i = 0; i < (longBlockNum - 1); i++)
-                        {
-                            tags[0][i] = tags[0][i + 1];
-                            data[0][i] = data[0][i + 1];
-                        }
-                        tags[0][longBlockNum - 1] = tmptag;
-                        data[0][longBlockNum - 1] = tmp;
-                    }
-                    else
-                    {
-                        wtfile << -1 << endl;
-                        bit32 tmpdata = data[0][tmpindex];
-                        for (int i = tmpindex; i < longBlockNum; i++)
-                        {
-                            tags[0][i] = tags[0][i + 1];
-                            data[0][i] = data[0][i + 1];
-                        }
-                        tags[0][longBlockNum - 1] = tmptag;
-                        data[0][longBlockNum - 1] = tmpdata;
-                    }
-                }
-                else
-                {
-                    int tmptmpIndex = -1;
-                    int tmptag = bit32tagtoint(tmp, tagNum, 31);
-                    for (int i = 0; i <= tmpindex; i++)
-                        if (tags[0][i] == tmptag)
-                        {
-                            tmptmpIndex = i;
-                            break;
-                        }
-                    if (tmptmpIndex == -1)
-                    {
-                        tags[0][tmpindex + 1] = bit32tagtoint(tmp, tagNum, 31);
-                        data[0][tmpindex + 1] = tmp;
-                        chck[0][tmpindex + 1] = true;
-                        wtfile << -1 << endl;
-                    }
-                    else
-                    {
-                        wtfile << -1 << endl;
-                        bit32 tmpdata = data[0][tmptmpIndex];
-                        for (int i = tmptmpIndex; i < tmpindex; i++)
-                        {
-                            tags[0][i] = tags[0][i + 1];
-                            data[0][i] = data[0][i + 1];
-                        }
-                        tags[0][tmpindex] = tmptag;
-                        data[0][tmpindex] = tmpdata;
-                    }
-                }
-                // tmpint = bit32tagtoint(tmp, indexNum, 31 - tagNum);
+          if (tpidx != -1)
+            fwt << -1 << endl;
+          else {
+            fwt << tag[0] << endl;
+            tag.erase(tag.begin());
+            tag.push_back(tmptg);
+          }
+        } else {
+          int tptpidx = -1;
+          tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          for (int i = 0; i < tpidx; i++)
+            if (tag[i] == tmptg) {
+              tptpidx = i;
+              break;
             }
+          if (tpidx != -1)
+            fwt << -1 << endl;
+          else {
+            fwt << -1 << endl;
+            tag[tptpidx + 1] = tmptg;
+            chk[tptpidx + 1] = true;
+          }
         }
-        else if (replacement == 2)
-        {
+      }
+    } else if (rlcmt == 1) {
+      tpidx = -1;
+      while (frd >> hex >> tmpwd) {
+        tmpbt = hexToBinary(tmpwd);
+        tmptg = bstTagToInt(tmpbt, tagNm, 31);
+        // tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+        for (int i = 0; i < lbkNm; i++) {
+          if (!chk[i])
+            break;
+          else
+            tpidx = i;
         }
+        if (tpidx == -1) {
+          tag[0] = tmptg;
+          chk[0] = true;
+          fwt << -1 << endl;
+        } else if (tpidx == 127) {
+          tpidx = -1;
+          for (int i = 0; i < lbkNm; i++)
+            if (tag[i] == tmptg) {
+              tpidx = i;
+              break;
+            }
+          if (tpidx != -1) {
+            fwt << -1 << endl;
+            tag.erase(tag.begin() + (tpidx - 1));
+            tag.push_back(tmptg);
+          } else {
+            fwt << tag[0] << endl;
+            tag.erase(tag.begin());
+            tag.push_back(tmptg);
+          }
+        } else {
+          int tptpidx = -1;
+          tmptg = bstTagToInt(tmpbt, tagNm, 31);
+          for (int i = 0; i < tpidx; i++)
+            if (tag[i] == tmptg) {
+              tptpidx = i;
+              break;
+            }
+          if (tptpidx != -1) {
+            fwt << -1 << endl;
+            tag.erase(tag.begin() + (tptpidx - 1));
+            tag.push_back(tmptg);
+          } else {
+            fwt << -1 << endl;
+            tag[tptpidx + 1] = tmptg;
+            chk[tptpidx + 1] = true;
+          }
+        }
+      }
+    } else if (rlcmt == 2) {
     }
+  }
 
-    rdfile.close();
-    wtfile.close();
+  frd.close();
+  fwt.close();
+  return 0;
 }
 
-bit32 hextobinary(string num)
-{
-    stringstream tmp;
-    tmp << hex << num;
-    unsigned n;
-    tmp >> n;
-    bit32 b(n);
-    return b;
+bst hexTobinary(string str) {
+  stringstream tmp;
+  unsigned num;
+  tmp << hex << str;
+  tmp >> num;
+  bst rst(num);
+  return rst;
 }
 
-int bit32tagtoint(bit32 num, int bitnum, int start)
-{
-    int result = 0;
-    for (int i = 0; i < bitnum; i++)
-        result += num[start - i] * (int)pow((double)2, (double)(bitnum - 1 - i));
-    return result;
+int bstTagToInt(bst tag, int rng, int bgn) {
+  int rst = 0;
+  for (int i = 0; i < rng; i++)
+    rst += tag[bgn - i] * (int)pow((double)2, (double)(rng - 1 - i));
+  return rst;
 }
