@@ -11,9 +11,6 @@ typedef bitset<32> bst;
 typedef struct {
   vector<int> vec;
 } int4;
-typedef struct {
-  vector<bool> vec;
-} bool4;
 
 bst hexToBinary(string str);
 int bstTagToInt(bst tag, int rng, int bgn);
