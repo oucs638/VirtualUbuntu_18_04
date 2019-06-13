@@ -247,8 +247,8 @@ int main(int argc, char* argv[]) {
     chk.resize(lbkNm);
     for (int i = 0; i < lbkNm; i++) chk[i] = false;
     if (rlcmt == 0) {
+      tpidx = -1;
       while (frd >> hex >> tmpwd) {
-        tpidx = -1;
         tmpbt = hexToBinary(tmpwd);
         tmptg = bstTagToInt(tmpbt, tagNm, 31);
         for (int i = 0; i < lbkNm; i++) {
@@ -292,8 +292,8 @@ int main(int argc, char* argv[]) {
         }
       }
     } else if (rlcmt == 1) {
+      tpidx = -1;
       while (frd >> hex >> tmpwd) {
-        tpidx = -1;
         tmpbt = hexToBinary(tmpwd);
         tmptg = bstTagToInt(tmpbt, tagNm, 31);
         for (int i = 0; i < lbkNm; i++) {
