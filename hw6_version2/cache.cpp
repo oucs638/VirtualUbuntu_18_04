@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         tag[tmpindex].erase(it);
         tag[tmpindex].push_back(tmptag);
       } else if (replacement == 2) {
-        reverse(it, tag[tmpindex].begin());
+        random_shuffle(tag[tmpindex].begin(), tag[tmpindex].end());
       }
     } else {
       if (tag[tmpindex].size() == sets) {
