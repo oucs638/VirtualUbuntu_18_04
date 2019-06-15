@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
       tmpbt = hexToBinary(tmpwd);
       tmptg = bstTagToInt(tmpbt, tagNm, 31);
       tmpit = bstTagToInt(tmpbt, idxNm, 31 - tagNm);
+      cout << tmptg << " " << tmpit << endl;
       if (tag[tmpit] == -1) {
         fwt << -1 << endl;
         tag[tmpit] = tmptg;
