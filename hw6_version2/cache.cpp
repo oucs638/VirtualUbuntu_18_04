@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         tag[tmpindex].erase(it);
         tag[tmpindex].push_back(tmptag);
       } else if (replacement == 2) {
-        if (it != (tag[tmpindex].end() - 1)) reverse(it, it + 1);
+        reverse(it, tag[tmpindex].begin());
       }
     } else {
       if (tag[tmpindex].size() == sets) {
@@ -66,37 +66,6 @@ int main(int argc, char *argv[]) {
         tag[tmpindex].push_back(tmptag);
       }
     }
-    // if (associativity == 0) {
-    //   if (tag[tmpindex].size() == 0) tag[tmpindex].push_back(tmptag);
-    //   if (tag[tmpindex][0] == tmptag)
-    //     filewt << -1 << endl;
-    //   else {
-    //     filewt << tag[tmpindex][0] << endl;
-    //     tag[tmpindex][0] = tmptag;
-    //   }
-    // } else {
-    //   if (tag[tmpindex].size() == 0) tag[tmpindex].push_back(tmptag);
-    //   vector<int>::iterator it =
-    //       find(tag[tmpindex].begin(), tag[tmpindex].end(), tmptag);
-    //   if (it != tag[tmpindex].end()) {
-    //     filewt << -1 << endl;
-    //     if (replacement == 1) {
-    //       tag[tmpindex].erase(it);
-    //       tag[tmpindex].push_back(tmptag);
-    //     } else if (replacement == 2) {
-    //       if (it != (tag[tmpindex].end() - 1)) reverse(it, it + 1);
-    //     }
-    //   } else {
-    //     if (tag[tmpindex].size() == sets) {
-    //       filewt << tag[tmpindex][0] << endl;
-    //       tag[tmpindex].erase(tag[tmpindex].begin());
-    //       tag[tmpindex].push_back(tmptag);
-    //     } else {
-    //       filewt << -1 << endl;
-    //       tag[tmpindex].push_back(tmptag);
-    //     }
-    //   }
-    // }
   }
 
   filerd.close();
