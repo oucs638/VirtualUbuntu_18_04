@@ -12,8 +12,8 @@ int main(int argc, char *argv[]) {
   
   srand(time(NULL));
   
-  string traceIn = argv[1];
-  string traceOut = argv[2];
+  string traceIn = "trace3.txt";//argv[1];
+  string traceOut = "trace3.out";//argv[2];
   
   int cacheSize, blockSize;
   int associative, policy;
@@ -32,34 +32,50 @@ int main(int argc, char *argv[]) {
   while (blockSize >>= 1) ++offsetLength;
   
   int tagLength = 32 - offsetLength - indexLength;
-  int wayCount;
+  int entryCount;  // number of entries in a set.
+  int setCount;  // number of set in the cache.
   
   switch (associative) {
     case 0:  // Direct-mapped
-      wayCount = 1;
+      setCount = blockCount;
+      entryCount = 1;
       break;
     case 1:  // Four-way set
-      wayCount = 4;
-      blockCount /= 4;
+      setCount = blockCount / 4;
+      entryCount = 4;
       indexLength -= 2;
       tagLength += 2;
       break;
     case 2:  // Fully
-      wayCount = blockCount;
-      blockCount = 1;
+      setCount = 1;
+      entryCount = blockCount;
       tagLength += indexLength;
       indexLength = 0;
       break;
   }
   
-  //cout << tagLength << " " << indexLength << " " << offsetLength << endl;
+  cout << tagLength << " " << indexLength << " " << offsetLength << endl;
   
-  unsigned int tag[blockCount][wayCount] = { {0} };
-  int valid[blockCount][wayCount] = { {0} };
+  unsigned int tag[setCount][entryCount];  // tag of an enrty in the set.
+  int valid[setCount][entryCount];  // whether an enrty in the set has data or not.
+  int FIFOidx[setCount];
+  int LRUidx[setCount][entryCount];
+  int LRUmax[setCount];
   
+  for (int i = 0; i < setCount; i++) {
+    int LRUidx[setCount][entryCount];
+    int LRUmax[setCount];
+    for (int j = 0; j < entryCount; j++) {
+      tag[i][j] = 0;
+      valid[i][j] = 0;
+      LRUidx[i][j] = -1;
+    }
+  }
+  
+  int test = 0;
   string strIn;
   while (fileIn >> strIn) {
-    
+    test++;
     unsigned int addr;
     stringstream ss;
     ss << std::hex << strIn;
@@ -70,10 +86,13 @@ int main(int argc, char *argv[]) {
     
     //cout << addrTag << " " << addrIndex << endl;
     
-    int FIFOidx[blockCount] = {-1};
-    int LRUidx[blockCount][wayCount] = { {-1} };
-    int LRUmax[blockCount] = {-1};
-    for (int i = 0; i < wayCount; i++) {
+    if (test == 2571) {
+      test = test;
+    } else {
+      test = test;
+    }
+    
+    for (int i = 0; i < entryCount; i++) {
       
       if (valid[addrIndex][i] && tag[addrIndex][i] == addrTag) {  // hit
         fileOut << -1 << endl;
@@ -83,29 +102,28 @@ int main(int argc, char *argv[]) {
         fileOut << -1 << endl;
         valid[addrIndex][i] = 1;
         tag[addrIndex][i] = addrTag;
-        FIFOidx[addrIndex] = ++FIFOidx[addrIndex] % wayCount;
+        FIFOidx[addrIndex] = ++FIFOidx[addrIndex] % entryCount;
         LRUidx[addrIndex][i] = ++LRUmax[addrIndex];
         break;
-      } else if (i == wayCount - 1) {  // miss && replace
+      } else if (i == entryCount - 1) {  // miss && replace
         int way = 0;
-        if (wayCount == 1) {  // direct-mapped replace
+        if (entryCount == 1) {  // direct-mapped replace
           way = 0;
-        } else if (policy == 1) {  // FIFO
-          way = FIFOidx[addrIndex] = ++FIFOidx[addrIndex] % wayCount;
-        } else if (policy == 2) {  // LRU
-          for (int j = 0; j < wayCount; j++) {
+        } else if (policy == 0) {  // FIFO
+          way = FIFOidx[addrIndex] = ++FIFOidx[addrIndex] % entryCount;
+        } else if (policy == 1) {  // LRU
+          for (int j = 0; j < entryCount; j++) {
             if (LRUidx[addrIndex][j] < LRUidx[addrIndex][way])
               way = j;
           }
           LRUidx[addrIndex][way] = ++LRUmax[addrIndex];
-        } else if (policy == 3) {  // Random
-          way = rand() % wayCount;
+        } else if (policy == 2) {  // Random
+          way = rand() % entryCount;
         }
         fileOut << tag[addrIndex][way] << endl;
         tag[addrIndex][way] = addrTag;
       }
     }
-    
     
   }
   
