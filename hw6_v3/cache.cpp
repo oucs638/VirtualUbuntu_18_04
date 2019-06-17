@@ -12,8 +12,8 @@ int main(int argc, char *argv[]) {
   
   srand(time(NULL));
   
-  string traceIn = "trace3.txt";//argv[1];
-  string traceOut = "trace3.out";//argv[2];
+  string traceIn = argv[1];
+  string traceOut = argv[2];
   
   int cacheSize, blockSize;
   int associative, policy;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
       break;
   }
   
-  cout << tagLength << " " << indexLength << " " << offsetLength << endl;
+  //cout << tagLength << " " << indexLength << " " << offsetLength << endl;
   
   unsigned int tag[setCount][entryCount];  // tag of an enrty in the set.
   int valid[setCount][entryCount];  // whether an enrty in the set has data or not.
